@@ -57,6 +57,7 @@ module.exports = class extends Generator {
   writing() {
     this._createPackageJson();
 
+    this.fs.copy(this.templatePath('src'), this.destinationPath('src'));
     this.fs.copy(this.templatePath('webpack'), this.destinationPath('.'));
     this.fs.copy(this.templatePath('configs'), this.destinationPath('.'), {
       globOptions: { dot: true }
