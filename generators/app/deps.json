@@ -1,0 +1,23 @@
+{
+  "main": [
+    "axios",
+    "lodash-es",
+    "mobx",
+    "mobx-logger",
+    "mobx-react",
+    "react",
+    "react-dom",
+    "react-hot-loader",
+    "recompose"
+  ],
+  "dev": [
+    "babel-eslint",
+    "eslint",
+    "eslint-config-airbnb",
+    "eslint-config-prettier",
+    "eslint-import-resolver-webpack",
+    "eslint-plugin-import",
+    "eslint-plugin-jsx-a11y",
+    "eslint-plugin-react"
+  ]
+}

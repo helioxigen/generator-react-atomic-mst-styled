@@ -1,0 +1,33 @@
+{
+    "extends": ["prettier", "prettier/react", "airbnb"],
+    "env": {
+        "browser": true
+    },
+    "parser": "babel-eslint",
+    "rules": {
+        "quotes": ["error", "double"],
+        "implicit-arrow-linebreak": "off",
+        "global-require": "off",
+        "import/no-dynamic-require": "off",
+        "react/jsx-wrap-multilines": "off",
+        "react/jsx-one-expression-per-line": "off",
+        "react/jsx-indent": "off",
+        "react/jsx-indent-props": "off",
+        "react/prop-types": "off",
+        "no-mixed-operators": "off",
+        "function-paren-newline": "off",
+        "no-confusing-arrow": "off",
+        "max-len": "off",
+        "semi": "off",
+        "indent": "off",
+        "arrow-parens": "off",
+        "object-curly-newline": "off",
+        "no-unused-expressions": [
+            "error",
+            { "allowShortCircuit": true, "allowTaggedTemplates": true }
+        ]
+    },
+    "settings": {
+        "import/resolver": "webpack"
+    }
+}
