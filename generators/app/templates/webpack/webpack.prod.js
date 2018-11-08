@@ -40,20 +40,10 @@ const configureBanner = () => ({
 })
 
 // Configure Bundle Analyzer
-const configureBundleAnalyzer = buildType => {
-    if (buildType === LEGACY_CONFIG) {
-        return {
-            analyzerMode: "static",
-            reportFilename: "report-legacy.html",
-        }
-    }
-    if (buildType === MODERN_CONFIG) {
-        return {
-            analyzerMode: "static",
-            reportFilename: "report-modern.html",
-        }
-    }
-}
+const configureBundleAnalyzer = buildType => ({
+    analyzerMode: "static",
+    reportFilename: `report-${buildType}.html`,
+})
 
 // Configure Clean webpack
 const configureCleanWebpack = () => ({

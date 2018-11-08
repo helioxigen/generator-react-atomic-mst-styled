@@ -1,12 +1,9 @@
 // Webpack.common.js - common webpack config
-const LEGACY_CONFIG = "legacy"
-const MODERN_CONFIG = "modern"
 
 const _ = require("lodash")
 
 // Node modules
 const path = require("path")
-const merge = require("webpack-merge")
 
 // Webpack plugins
 const HtmlWebpackPlugin = require("html-webpack-plugin")
@@ -94,11 +91,11 @@ const configureManifest = type => ({
     fileName: getManifestName(type),
     basePath: settings.manifestConfig.basePath,
     map: file => {
-      const nextFile = file;
+        const nextFile = file
 
-      nextFile.name = file.name.replace(/(\.[a-f0-9]{32})(\..*)$/, "$2")
+        nextFile.name = file.name.replace(/(\.[a-f0-9]{32})(\..*)$/, "$2")
 
-      return nextFile
+        return nextFile
     },
 })
 
