@@ -1,14 +1,14 @@
-var Generator = require('yeoman-generator');
-const { getFirstOptionOfType } = require('../../utils');
+const Generator = require("yeoman-generator");
+const { getFirstOptionOfType } = require("../../utils");
 
-const types = ['atom', 'molecule', 'organism', 'page', 'template'];
-const kinds = ['simple', 'class', 'injected'];
+const types = ["atom", "molecule", "organism", "page", "template"];
+const kinds = ["simple", "class", "injected"];
 
 module.exports = class extends Generator {
   constructor(args, opts) {
     super(args, opts);
 
-    this.argument('name', { type: String, required: true });
+    this.argument("name", { type: String, required: true });
 
     this._createTypeOptions();
 
@@ -16,21 +16,27 @@ module.exports = class extends Generator {
   }
 
   initializing() {
-    if (!this.fs.exists('package.json')) throw console.error('Requires project');
+    if (!this.fs.exists("package.json")) throw new Error("Requires project");
 
-    this.selectedType = getFirstOptionOfType(this.options, types);
+    this.selectedType = getFirstOptionOfType(types, this.options);
 
-    if (!this.selectedType) throw console.error('Requires component type');
+    if (!this.selectedType) throw new Error("Requires component type");
 
-    this.selectedKind = getFirstOptionOfType(this.options, kinds) || 'default';
+    this.selectedKind = getFirstOptionOfType(this.options, kinds) || "default";
   }
 
   writing() {
-    const path = `src/components/${this.selectedType}s/${this.options.name}/index.jsx`;
+    const path = `src/components/${this.selectedType}s/${
+      this.options.name
+    }/index.jsx`;
 
-    this.fs.copyTpl(this.templatePath(`component.${this.selectedKind}.jsx`), path, {
-      name: this.options.name
-    });
+    this.fs.copyTpl(
+      this.templatePath(`component.${this.selectedKind}.jsx`),
+      path,
+      {
+        name: this.options.name
+      }
+    );
   }
 
   _createTypeOptions() {

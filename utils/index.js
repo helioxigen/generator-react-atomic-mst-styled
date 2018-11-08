@@ -1,9 +1,8 @@
-const _ = require('lodash');
-const { compose } = require('lodash/fp');
+const _ = require("lodash");
 
-const concatFull = compose(
-  _.compact,
-  _.flatten
+const concatFull = _.flow(
+  _.flatten,
+  _.compact
 );
 
 const firstKey = _.flow(
@@ -11,11 +10,14 @@ const firstKey = _.flow(
   _.head
 );
 
-const getFirstOptionOfType = (options, types) => {
-  const opts = _.pickBy(options, (value, key) => _.includes(types, key) && value);
+function getFirstOptionOfType(types, options) {
+  const opts = _.pickBy(
+    options,
+    (value, key) => _.includes(types, key) && value
+  );
 
   return firstKey(opts);
-};
+}
 
 module.exports = {
   concatFull,
