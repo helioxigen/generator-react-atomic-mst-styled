@@ -5,6 +5,7 @@
     },
     "parser": "babel-eslint",
     "rules": {
+        "no-underscore-dangle": "off",
         "quotes": ["error", "double"],
         "implicit-arrow-linebreak": "off",
         "global-require": "off",

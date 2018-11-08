@@ -33,42 +33,42 @@ const configureBabelLoader = browserList => ({
             modules: false,
             useBuiltIns: "entry",
             targets: {
-              browsers: browserList
-            }
+              browsers: browserList,
+            },
           },
-          "@babel/preset-react"
-        ]
+          "@babel/preset-react",
+        ],
       ],
       plugins: [
         "react-hot-loader/babel",
         [
           "@babel/plugin-proposal-decorators",
           {
-            legacy: true
-          }
+            legacy: true,
+          },
         ],
         [
           "@babel/plugin-proposal-class-properties",
           {
-            loose: true
-          }
+            loose: true,
+          },
         ],
         "@babel/plugin-syntax-dynamic-import",
         [
           "@babel/plugin-transform-runtime",
           {
-            regenerator: true
-          }
-        ]
-      ]
-    }
-  }
+            regenerator: true,
+          },
+        ],
+      ],
+    },
+  },
 });
 
 // Configure Entries
 const configureEntries = () =>
   _.mapValues(settings.entries, value =>
-    path.resolve(__dirname, settings.paths.src.js + value)
+    path.resolve(__dirname, settings.paths.src.js + value),
   );
 
 // Configure Font loader
@@ -78,16 +78,16 @@ const configureFontLoader = () => ({
     {
       loader: "file-loader",
       options: {
-        name: "fonts/[name].[ext]"
-      }
-    }
-  ]
+        name: "fonts/[name].[ext]",
+      },
+    },
+  ],
 });
 
 const getManifestName = type => {
-  const type = strOr(type !== "modern" && `-${type}`);
+  const postfix = strOr(type !== "modern" && `-${type}`);
 
-  return `manifest${type}.json`;
+  return `manifest${postfix}.json`;
 };
 
 // Configure Manifest
@@ -97,7 +97,7 @@ const configureManifest = type => ({
   map: file => {
     file.name = file.name.replace(/(\.[a-f0-9]{32})(\..*)$/, "$2");
     return file;
-  }
+  },
 });
 
 const { legacyConfig, modernConfig } = genConfig(
@@ -106,15 +106,17 @@ const { legacyConfig, modernConfig } = genConfig(
     entry: configureEntries(),
     output: {
       path: path.resolve(__dirname, settings.paths.dist.base),
-      publicPath: settings.urls.publicPath
+      publicPath: settings.urls.publicPath,
     },
     module: {
-      rules: [configureFontLoader()]
+      rules: [configureFontLoader()],
     },
     module: {
       rules: [
-        configureBabelLoader(Object.values(pkg.browserslist[`${type}Browsers`]))
-      ]
+        configureBabelLoader(
+          Object.values(pkg.browserslist[`${type}Browsers`]),
+        ),
+      ],
     },
     plugins: [
       new HtmlWebpackPlugin({
@@ -123,23 +125,23 @@ const { legacyConfig, modernConfig } = genConfig(
         appMountId: "app",
         baseHref: settings.urls.baseHref,
         devServer: settings.devServerConfig.public(),
-        inlineManifestWebpackName: getManifestName(type)
+        inlineManifestWebpackName: getManifestName(type),
       }),
       new CopyWebpackPlugin(settings.copyWebpackConfig),
       new ManifestPlugin(configureManifest(type)),
       new WebpackNotifierPlugin({
         title: "Webpack",
         excludeWarnings: true,
-        alwaysNotify: true
-      })
-    ]
+        alwaysNotify: true,
+      }),
+    ],
   }),
-  ["modernConfig", "legacyConfig"]
+  ["modernConfig", "legacyConfig"],
 );
 
 // Common module exports
 // noinspection WebpackConfigHighlighting
 module.exports = {
   legacyConfig,
-  modernConfig
+  modernConfig,
 };

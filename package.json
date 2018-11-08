@@ -85,6 +85,7 @@
   "scripts": {
     "pretest": "eslint .",
     "precommit": "lint-staged",
+    "lint-generators": "eslint --ext .jsx,.js -c ./generators/app/templates/configs/.eslintrc --ignore-pattern '/node_modules/' --fix generators/**/*.jsx ",
     "test": "jest"
   },
   "repository": "helioxigen/generator-styled-atomic",

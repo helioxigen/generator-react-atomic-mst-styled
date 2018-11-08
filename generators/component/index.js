@@ -34,8 +34,8 @@ module.exports = class extends Generator {
       this.templatePath(`component.${this.selectedKind}.jsx`),
       path,
       {
-        name: this.options.name
-      }
+        name: this.options.name,
+      },
     );
   }
 
@@ -43,8 +43,8 @@ module.exports = class extends Generator {
     types.forEach(type =>
       this.option(type, {
         alias: type.toUpperCase().charAt(0),
-        description: `Creates component with type ${type}`
-      })
+        description: `Creates component with type ${type}`,
+      }),
     );
   }
 };
