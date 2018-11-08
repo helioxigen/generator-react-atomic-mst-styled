@@ -2,6 +2,8 @@
 const LEGACY_CONFIG = "legacy";
 const MODERN_CONFIG = "modern";
 
+const _ = require("lodash");
+
 // Node modules
 const path = require("path");
 const merge = require("webpack-merge");
@@ -64,14 +66,10 @@ const configureBabelLoader = browserList => ({
 });
 
 // Configure Entries
-const configureEntries = () => {
-  const entries = {};
-  for (const [key, value] of Object.entries(settings.entries)) {
-    entries[key] = path.resolve(__dirname, settings.paths.src.js + value);
-  }
-
-  return entries;
-};
+const configureEntries = () =>
+  _.mapValues(settings.entries, value =>
+    path.resolve(__dirname, settings.paths.src.js + value)
+  );
 
 // Configure Font loader
 const configureFontLoader = () => ({
@@ -136,12 +134,12 @@ const { legacyConfig, modernConfig } = genConfig(
       })
     ]
   }),
-  ["modern", "legacy"]
+  ["modernConfig", "legacyConfig"]
 );
 
 // Common module exports
 // noinspection WebpackConfigHighlighting
 module.exports = {
-  legacyConfig: legacy,
-  modernConfig: merge(modern, baseConfig)
+  legacyConfig,
+  modernConfig
 };
