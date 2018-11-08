@@ -1,7 +1,6 @@
 {
   "main": [
     "axios",
-    "lodash-es",
     "mobx",
     "mobx-logger",
     "mobx-react",
