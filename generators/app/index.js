@@ -43,6 +43,7 @@ module.exports = class extends Generator {
     }
 
     async configuring() {
+        this.log("Configuring destination...")
         const repoURL = new URL(this.answers.repo)
         repoURL.username = this.answers.username
 
@@ -67,13 +68,15 @@ module.exports = class extends Generator {
     }
 
     install() {
+        this.log("Installing dependencies...")
+
         const { main, dev } = require("./deps.json")
 
         const webpackDeps = require(this.templatePath("webpack/.deps.json"))
 
-        this.npmInstall(main)
+        this.npmInstall(main, { loglevel: "error" })
 
-        this.npmInstall(dev.concat(webpackDeps), { "save-dev": true })
+        this.npmInstall(dev.concat(webpackDeps), { loglevel: "error", "save-dev": true })
     }
 
     _createPackageJson() {
@@ -84,8 +87,8 @@ module.exports = class extends Generator {
             version: "1.0.0",
             main: "./src/index.jsx",
             scripts: {
-                dev: "webpack-dev-server --config webpack.dev.js",
-                build: "webpack --config webpack.prod.js --progress --hide-modules",
+                dev: "webpack-dev-server --config webpack/webpack.dev.js",
+                build: "webpack --config webpack/webpack.prod.js --progress --hide-modules",
             },
             repository: {
                 type: "git",

@@ -1,6 +1,4 @@
 // Webpack.prod.js - production builds
-const LEGACY_CONFIG = "legacy"
-const MODERN_CONFIG = "modern"
 
 // Node modules
 const webpack = require("webpack")
@@ -14,8 +12,8 @@ const SaveRemoteFilePlugin = require("save-remote-file-webpack-plugin")
 const WorkboxPlugin = require("workbox-webpack-plugin")
 
 // Config files
-const common = require("./webpack.common.js")
-const settings = require("./webpack.settings.js")
+const common = require("./webpack.common")
+const settings = require("./webpack.settings")
 const { configureOptimization, imageLoader, configureBanner } = require("./configs")
 const { conditionalEntries } = require("./utils")
 
@@ -38,6 +36,8 @@ const configureWorkbox = () => {
 
     return config
 }
+
+const { LEGACY_CONFIG, MODERN_CONFIG } = require("./index").configTypes
 
 // Production module exports
 module.exports = common.extend(type => ({

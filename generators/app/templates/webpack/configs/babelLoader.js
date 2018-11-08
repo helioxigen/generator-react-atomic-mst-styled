@@ -1,4 +1,6 @@
-const { browserslist } = require.resolve("package.json", { paths: __dirname })
+const {
+    packageJson: { browserslist },
+} = require("../index")
 
 // Configure Babel loader
 module.exports = type => ({

@@ -3,7 +3,8 @@ const merge = require("webpack-merge")
 
 const { configTypes } = require("../webpack.settings")
 
-const generateConfigByType = configTplFn => _.mapValues(_.keyBy(configTypes), configTplFn)
+const generateConfigByType = configTplFn => _.mapValues(_.values(configTypes), configTplFn)
+
 const createExtendByType = configs => extendTplFn =>
     _.entries(configs).map(([type, config]) => merge(config, extendTplFn(type)))
 

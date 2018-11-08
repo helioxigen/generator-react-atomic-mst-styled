@@ -7,8 +7,14 @@ const pkg = require("./package.json")
 // Webpack settings exports
 // noinspection WebpackConfigHighlighting
 
+const configTypes = {
+    LEGACY_CONFIG: "legacy",
+    MODERN_CONFIG: "modern",
+}
+
 module.exports = {
-    configTypes: ["legacy", "modern"],
+    _packageJson: pkg,
+    configTypes,
     name: pkg.name,
     paths: {
         src: {

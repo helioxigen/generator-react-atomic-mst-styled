@@ -1,12 +1,9 @@
 const _ = require("lodash")
+const { MODERN_CONFIG } = require("../index").configTypes
 
-const filterPluginsByType = (type, typePluginsMap = {}, ...otherPlugins) => {
-    const isTypePresent = type in typePluginsMap
+const typePostfix = type => (type === MODERN_CONFIG ? "" : `.${type}`)
 
-    if (!isTypePresent) return otherPlugins
-
-    return typePluginsMap[type].concat(otherPlugins)
-}
+const tplStrType = (str = "", type) => str.replace("[type]", typePostfix(type));
 
 const conditionalEntries = (...entries) => match => {
     const matched = entries.filter(entry => {
@@ -21,7 +18,7 @@ const conditionalEntries = (...entries) => match => {
 }
 
 module.exports = {
+    tplStrType,
     conditionalEntries,
-    filterPluginsByType,
     createRootConfig: require("./createRootConfig"),
 }

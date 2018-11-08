@@ -9,9 +9,7 @@ const WebpackNotifierPlugin = require("webpack-notifier")
 const { fontLoader, babelLoader, configureManifest, configureHtmlTemplate } = require("./configs")
 const { createRootConfig } = require("./utils")
 
-// Config files
-const pkg = require("../package.json")
-const settings = require("./webpack.settings.js")
+const { settings, packageJson: pkg } = require("./index")
 
 // Configure Entries
 // const configureEntries = () =>
