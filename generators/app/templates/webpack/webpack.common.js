@@ -10,8 +10,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 const ManifestPlugin = require("webpack-manifest-plugin")
 const WebpackNotifierPlugin = require("webpack-notifier")
-const { strOr } = require("./utils/index.js")
-const { genConfigsByType } = require("./utils/webpack.utils.js")
+
+const genConfigsByType = (configTplFn, types) => _.keyBy(types, value => configTplFn(value))
 
 // Config files
 const pkg = require("./package.json")
@@ -80,15 +80,9 @@ const configureFontLoader = () => ({
     ],
 })
 
-const getManifestName = type => {
-    const postfix = strOr(type !== "modern" && `-${type}`)
-
-    return `manifest${postfix}.json`
-}
-
 // Configure Manifest
 const configureManifest = type => ({
-    fileName: getManifestName(type),
+    fileName: `manifest-${type}.json`,
     basePath: settings.manifestConfig.basePath,
     map: file => {
         const nextFile = file
@@ -99,7 +93,7 @@ const configureManifest = type => ({
     },
 })
 
-module.exports = genConfigsByType(
+const { modern: modernConfig, legacy: legacyConfig } = genConfigsByType(
     type => ({
         name: pkg.name,
         entry: configureEntries(),
@@ -120,7 +114,7 @@ module.exports = genConfigsByType(
                 appMountId: "app",
                 baseHref: settings.urls.baseHref,
                 devServer: settings.devServerConfig.public(),
-                inlineManifestWebpackName: getManifestName(type),
+                inlineManifestWebpackName: `manifest-${type}.json`,
             }),
             new CopyWebpackPlugin(settings.copyWebpackConfig),
             new ManifestPlugin(configureManifest(type)),
@@ -131,5 +125,10 @@ module.exports = genConfigsByType(
             }),
         ],
     }),
-    ["modernConfig", "legacyConfig"],
+    ["modern", "legacy"],
 )
+
+module.exports = {
+    modernConfig,
+    legacyConfig,
+}
