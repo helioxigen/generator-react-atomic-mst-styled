@@ -2,7 +2,7 @@
 
 // node modules
 require("dotenv").config()
-const pkg = require("./package.json")
+const pkg = require("../package.json")
 
 // Webpack settings exports
 // noinspection WebpackConfigHighlighting
@@ -30,10 +30,10 @@ module.exports = {
         publicPath: "/dist/",
     },
     copyWebpackConfig: [
-        {
-            from: "./src/js/workbox-catch-handler.js",
-            to: "js/[name].[ext]",
-        },
+        // {
+        //     from: "./src/js/workbox-catch-handler.js",
+        //     to: "js/[name].[ext]",
+        // },
     ],
     devServerConfig: {
         public: () => process.env.DEVSERVER_PUBLIC || "http://0.0.0.0:3000",

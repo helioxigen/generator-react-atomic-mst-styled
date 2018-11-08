@@ -9,19 +9,21 @@ const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer")
 const CleanWebpackPlugin = require("clean-webpack-plugin")
 const ImageminWebpWebpackPlugin = require("imagemin-webp-webpack-plugin")
 const SaveRemoteFilePlugin = require("save-remote-file-webpack-plugin")
-const WorkboxPlugin = require("workbox-webpack-plugin")
+// const WorkboxPlugin = require("workbox-webpack-plugin")
 
 // Config files
 const common = require("./webpack.common")
 const settings = require("./webpack.settings")
-const { configureOptimization, imageLoader, configureBanner } = require("./configs")
 const {
-    conditionalEntries,
+    configureOptimization,
+    imageLoader,
+    configureBanner,
     configureCleanWebpack,
     configureWorkbox,
     configureBundleAnalyzer,
-    tplStrType,
-} = require("./utils")
+} = require("./configs")
+
+const { conditionalEntries, tplStrType } = require("./utils")
 
 const { LEGACY_CONFIG, MODERN_CONFIG } = require("./index").configTypes
 
@@ -34,7 +36,7 @@ module.exports = common.extend({
     workbox: configureWorkbox,
     banner: configureBanner,
     cleanWebpack: configureCleanWebpack,
-    filterPlugins: (...entries) => conditionalEntries(...entries),
+    filterPlugins: conditionalEntries,
 })(vars => ({
     output: {
         filename: path.join("./js", vars.fileTemplate),
@@ -49,7 +51,7 @@ module.exports = common.extend({
         [LEGACY_CONFIG, new CleanWebpackPlugin(settings.paths.dist.clean, vars.cleanWebpack)],
         new webpack.BannerPlugin(vars.banner),
         [MODERN_CONFIG, new ImageminWebpWebpackPlugin()],
-        [MODERN_CONFIG, new WorkboxPlugin.GenerateSW(vars.workbox)],
+        // [MODERN_CONFIG, new WorkboxPlugin.GenerateSW(vars.workbox)],
         [LEGACY_CONFIG, new SaveRemoteFilePlugin(settings.saveRemoteFileConfig)],
         new BundleAnalyzerPlugin(vars.bundleAnalyzer),
     ),
