@@ -1,5 +1,5 @@
 {
-  "name": "generator-react-atomic-mst-styled",
+  "name": "generator-styled-atomic",
   "version": "0.0.0",
   "description": "React Atomic design generator filled with MobX and Styled Components",
   "author": {
@@ -87,6 +87,6 @@
     "precommit": "lint-staged",
     "test": "jest"
   },
-  "repository": "helioxigen/generator-react-atomic-mst-styled",
+  "repository": "helioxigen/generator-styled-atomic",
   "license": "MIT"
 }
