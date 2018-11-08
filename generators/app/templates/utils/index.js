@@ -1,1 +1,1 @@
-export const strOr = (a = "", b = "") => a || b;
+export const strOr = (a = "", b = "") => a || b

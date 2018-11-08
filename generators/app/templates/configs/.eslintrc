@@ -9,6 +9,8 @@
         "quotes": ["error", "double"],
         "implicit-arrow-linebreak": "off",
         "global-require": "off",
+        "import/prefer-default-export": "off",
+        "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
         "import/no-dynamic-require": "off",
         "react/jsx-wrap-multilines": "off",
         "react/jsx-one-expression-per-line": "off",
