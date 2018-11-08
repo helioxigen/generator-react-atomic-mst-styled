@@ -1,5 +1,5 @@
 const moment = require("moment")
-const git = require("git-rev-sync")
+// const git = require("git-rev-sync")
 
 const {
     settings,
@@ -13,7 +13,7 @@ module.exports = () => ({
         " * @name           [filebase]",
         ` * @author         ${author.name}`,
         ` * @build          ${moment().format("llll")} ET`,
-        ` * @release        ${git.long()} [${git.branch()}]`,
+        // ` * @release        ${git.long()} [${git.branch()}]`,
         ` * @copyright      Copyright (c) ${moment().format("YYYY")} ${settings.copyright}`,
         " *",
         " */",
