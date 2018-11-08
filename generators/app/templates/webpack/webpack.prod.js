@@ -12,12 +12,9 @@ const webpack = require("webpack")
 // Webpack plugins
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer")
 const CleanWebpackPlugin = require("clean-webpack-plugin")
-const HtmlWebpackPlugin = require("html-webpack-plugin")
 const ImageminWebpWebpackPlugin = require("imagemin-webp-webpack-plugin")
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin")
 const SaveRemoteFilePlugin = require("save-remote-file-webpack-plugin")
 const TerserPlugin = require("terser-webpack-plugin")
-const WebappWebpackPlugin = require("webapp-webpack-plugin")
 const WorkboxPlugin = require("workbox-webpack-plugin")
 
 // Config files
@@ -30,7 +27,7 @@ const configureBanner = () => ({
     banner: [
         "/*!",
         ` * @project        ${settings.name}`,
-        " * @name           " + "[filebase]",
+        " * @name           [filebase]",
         ` * @author         ${pkg.author.name}`,
         ` * @build          ${moment().format("llll")} ET`,
         ` * @release        ${git.long()} [${git.branch()}]`,
@@ -65,61 +62,44 @@ const configureCleanWebpack = () => ({
     dry: false,
 })
 
-// Configure Html webpack
-const configureHtml = () => ({
-    templateContent: "",
-    filename: "webapp.html",
-    inject: false,
-})
-
 // Configure Image loader
 const configureImageLoader = buildType => {
-    if (buildType === LEGACY_CONFIG) {
-        return {
-            test: /\.(png|jpe?g|gif|svg|webp)$/i,
-            use: [
-                {
-                    loader: "file-loader",
-                    options: {
-                        name: "img/[name].[hash].[ext]",
-                    },
+    const config = {
+        test: /\.(png|jpe?g|gif|svg|webp)$/i,
+        use: [
+            {
+                loader: "file-loader",
+                options: {
+                    name: "img/[name].[hash].[ext]",
                 },
-            ],
-        }
+            },
+        ],
     }
+
     if (buildType === MODERN_CONFIG) {
-        return {
-            test: /\.(png|jpe?g|gif|svg|webp)$/i,
-            use: [
-                {
-                    loader: "file-loader",
-                    options: {
-                        name: "img/[name].[hash].[ext]",
-                    },
-                },
-                {
-                    loader: "img-loader",
-                    options: {
-                        plugins: [
-                            require("imagemin-gifsicle")({
-                                interlaced: true,
-                            }),
-                            require("imagemin-mozjpeg")({
-                                progressive: true,
-                                arithmetic: false,
-                            }),
-                            require("imagemin-optipng")({
-                                optimizationLevel: 5,
-                            }),
-                            require("imagemin-svgo")({
-                                plugins: [{ convertPathData: false }],
-                            }),
-                        ],
-                    },
-                },
-            ],
-        }
+        config.use.push({
+            loader: "img-loader",
+            options: {
+                plugins: [
+                    require("imagemin-gifsicle")({
+                        interlaced: true,
+                    }),
+                    require("imagemin-mozjpeg")({
+                        progressive: true,
+                        arithmetic: false,
+                    }),
+                    require("imagemin-optipng")({
+                        optimizationLevel: 5,
+                    }),
+                    require("imagemin-svgo")({
+                        plugins: [{ convertPathData: false }],
+                    }),
+                ],
+            },
+        })
     }
+
+    return config
 }
 
 // Configure optimization

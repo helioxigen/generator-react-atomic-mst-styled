@@ -5,6 +5,7 @@
     "mobx",
     "mobx-logger",
     "mobx-react",
+    "lodash",
     "react",
     "react-dom",
     "react-hot-loader",
