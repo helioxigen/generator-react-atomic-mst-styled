@@ -1,4 +1,5 @@
 // Webpack.common.js - common webpack config
+const path = require("path")
 
 // Webpack plugins
 const HtmlWebpackPlugin = require("html-webpack-plugin")
@@ -26,7 +27,7 @@ module.exports = createRootConfig({
         extensions: [".js", ".jsx"],
     },
     output: {
-        path: settings.paths.dist.base,
+        path: path.resolve(__dirname, settings.paths.dist.base),
         publicPath: settings.urls.publicPath,
     },
     module: {

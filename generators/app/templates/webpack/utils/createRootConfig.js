@@ -4,12 +4,21 @@ const merge = require("webpack-merge")
 const { configTypes } = require("../webpack.settings")
 
 const createVarsCompiler = vars => type =>
-    _.mapValues({ type, ...vars }, compileFn => compileFn(type))
+    _.mapValues(
+        { type: () => type, ...vars },
+        compileFn => (compileFn ? compileFn(type) : compileFn),
+    )
+
+const enrichTplFn = (tplFn, vars) => {
+    const compile = createVarsCompiler(vars)
+
+    return type => tplFn(compile(type))
+}
 
 const generateConfigByType = (configTplFn, vars) => {
-    const compileVars = createVarsCompiler(vars)
+    const withVars = enrichTplFn(configTplFn, vars)
 
-    return _.mapValues(_.values(configTypes), typeName => configTplFn(compileVars(typeName)))
+    return _.mapValues(_.values(configTypes), withVars)
 }
 
 const createExtendByType = configs => vars => extendTplFn => {

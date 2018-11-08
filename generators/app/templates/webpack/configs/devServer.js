@@ -7,7 +7,7 @@ module.exports = {
     host: devServerConfig.host(),
     port: devServerConfig.port(),
     https: Boolean(parseInt(devServerConfig.https(), 10)),
-    quiet: true,
+    // quiet: true,
     hot: true,
     hotOnly: true,
     overlay: true,

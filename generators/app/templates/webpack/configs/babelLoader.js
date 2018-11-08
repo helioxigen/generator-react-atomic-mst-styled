@@ -3,7 +3,7 @@ const {
 } = require("../index")
 
 // Configure Babel loader
-module.exports = type => ({
+module.exports = (type, isProduction = false) => ({
     test: /\.jsx?$/,
     exclude: /node_modules/,
     use: {
@@ -16,7 +16,7 @@ module.exports = type => ({
                         modules: false,
                         useBuiltIns: "entry",
                         targets: {
-                            browsers: browserslist[type],
+                            browsers: browserslist[isProduction ? "production" : type],
                         },
                     },
                 ],

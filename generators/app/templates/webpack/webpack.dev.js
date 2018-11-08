@@ -21,7 +21,7 @@ const { MODERN_CONFIG } = require("./index").configTypes
 module.exports = common.extend({
     fileTemplate: tplStrType("[name][type].[hash].js"),
     imageLoader,
-    filterPlugins: (...entries) => conditionalEntries(...entries),
+    filterPlugins: conditionalEntries,
 })(vars => ({
     mode: "development",
     devServer,
