@@ -1,71 +1,71 @@
 // Webpack.common.js - common webpack config
-const LEGACY_CONFIG = 'legacy';
-const MODERN_CONFIG = 'modern';
+const LEGACY_CONFIG = "legacy";
+const MODERN_CONFIG = "modern";
 
 // Node modules
-const path = require('path');
-const merge = require('webpack-merge');
+const path = require("path");
+const merge = require("webpack-merge");
 
 // Webpack plugins
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ManifestPlugin = require('webpack-manifest-plugin');
-const WebpackNotifierPlugin = require('webpack-notifier');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const ManifestPlugin = require("webpack-manifest-plugin");
+const WebpackNotifierPlugin = require("webpack-notifier");
+const { strOr } = require("./utils/index.js");
 
 // Config files
-const pkg = require('./package.json');
-const settings = require('./webpack.settings.js');
+const pkg = require("./package.json");
+const settings = require("./webpack.settings.js");
 
 // Configure Babel loader
-const configureBabelLoader = browserList => {
-  return {
-    test: /\.js(x?)$/,
-    exclude: /node_modules/,
-    use: {
-      loader: 'babel-loader',
-      options: {
-        presets: [
-          [
-            '@babel/preset-env',
-            {
-              modules: false,
-              useBuiltIns: 'entry',
-              targets: {
-                browsers: browserList
-              }
-            },
-            '@babel/preset-react'
-          ]
-        ],
-        plugins: [
-          'react-hot-loader/babel',
-          [
-            '@babel/plugin-proposal-decorators',
-            {
-              legacy: true
+const configureBabelLoader = browserList => ({
+  test: /\.js(x?)$/,
+  exclude: /node_modules/,
+  use: {
+    loader: "babel-loader",
+    options: {
+      presets: [
+        [
+          "@babel/preset-env",
+          {
+            modules: false,
+            useBuiltIns: "entry",
+            targets: {
+              browsers: browserList
             }
-          ],
-          [
-            '@babel/plugin-proposal-class-properties',
-            {
-              loose: true
-            }
-          ],
-          '@babel/plugin-syntax-dynamic-import',
-          [
-            '@babel/plugin-transform-runtime',
-            {
-              regenerator: true
-            }
-          ]
+          },
+          "@babel/preset-react"
         ]
-      }
+      ],
+      plugins: [
+        "react-hot-loader/babel",
+        [
+          "@babel/plugin-proposal-decorators",
+          {
+            legacy: true
+          }
+        ],
+        [
+          "@babel/plugin-proposal-class-properties",
+          {
+            loose: true
+          }
+        ],
+        "@babel/plugin-syntax-dynamic-import",
+        [
+          "@babel/plugin-transform-runtime",
+          {
+            regenerator: true
+          }
+        ]
+      ]
     }
-  };
-};
+  }
+});
 
 // Configure Entries
 const configureEntries = () => {
-  let entries = {};
+  const entries = {};
   for (const [key, value] of Object.entries(settings.entries)) {
     entries[key] = path.resolve(__dirname, settings.paths.src.js + value);
   }
@@ -74,34 +74,35 @@ const configureEntries = () => {
 };
 
 // Configure Font loader
-const configureFontLoader = () => {
-  return {
-    test: /\.(ttf|eot|woff2?)$/i,
-    use: [
-      {
-        loader: 'file-loader',
-        options: {
-          name: 'fonts/[name].[ext]'
-        }
+const configureFontLoader = () => ({
+  test: /\.(ttf|eot|woff2?)$/i,
+  use: [
+    {
+      loader: "file-loader",
+      options: {
+        name: "fonts/[name].[ext]"
       }
-    ]
-  };
+    }
+  ]
+});
+
+const getManifestName = type => {
+  const type = strOr(type !== "modern" && `-${type}`);
+
+  return `manifest${type}.json`;
 };
 
 // Configure Manifest
-const configureManifest = fileName => {
-  return {
-    fileName: fileName,
-    basePath: settings.manifestConfig.basePath,
-    map: file => {
-      file.name = file.name.replace(/(\.[a-f0-9]{32})(\..*)$/, '$2');
-      return file;
-    }
-  };
-};
+const configureManifest = type => ({
+  fileName: getManifestName(type),
+  basePath: settings.manifestConfig.basePath,
+  map: file => {
+    file.name = file.name.replace(/(\.[a-f0-9]{32})(\..*)$/, "$2");
+    return file;
+  }
+});
 
-// The base webpack config
-const baseConfig = {
+const { legacyConfig, modernConfig } = genConfig(type => ({
   name: pkg.name,
   entry: configureEntries(),
   output: {
@@ -111,37 +112,33 @@ const baseConfig = {
   module: {
     rules: [configureFontLoader()]
   },
+  module: {
+    rules: [
+      configureBabelLoader(Object.values(pkg.browserslist[`${type}Browsers`]))
+    ]
+  },
   plugins: [
+    new HtmlWebpackPlugin({
+      inject: false,
+      template: require("html-webpack-template"),
+      appMountId: "app",
+      baseHref: settings.urls.baseHref,
+      devServer: settings.devServerConfig.public(),
+      inlineManifestWebpackName: getManifestName(type),
+    })
+    new CopyWebpackPlugin(settings.copyWebpackConfig),
+    new ManifestPlugin(configureManifest(type)),
     new WebpackNotifierPlugin({
-      title: 'Webpack',
+      title: "Webpack",
       excludeWarnings: true,
       alwaysNotify: true
     })
   ]
-};
-
-// Legacy webpack config
-const legacyConfig = {
-  module: {
-    rules: [configureBabelLoader(Object.values(pkg.browserslist.legacyBrowsers))]
-  },
-  plugins: [
-    new CopyWebpackPlugin(settings.copyWebpackConfig),
-    new ManifestPlugin(configureManifest('manifest-legacy.json'))
-  ]
-};
-
-// Modern webpack config
-const modernConfig = {
-  module: {
-    rules: [configureBabelLoader(Object.values(pkg.browserslist.modernBrowsers))]
-  },
-  plugins: [new ManifestPlugin(configureManifest('manifest.json'))]
-};
+}), ["modern", "legacy"]);
 
 // Common module exports
 // noinspection WebpackConfigHighlighting
 module.exports = {
-  legacyConfig: merge(legacyConfig, baseConfig),
-  modernConfig: merge(modernConfig, baseConfig)
+  legacyConfig: legacy,
+  modernConfig: merge(modern, baseConfig)
 };

@@ -18,6 +18,7 @@ module.exports = {
     },
   },
   urls: {
+    baseHref: '',
     publicPath: '/dist/'
   },
   entries: {
@@ -30,10 +31,10 @@ module.exports = {
     }
   ],
   devServerConfig: {
-    public: () => process.env.DEVSERVER_PUBLIC || 'http://0.0.0.0:8080',
+    public: () => process.env.DEVSERVER_PUBLIC || 'http://0.0.0.0:3000',
     host: () => process.env.DEVSERVER_HOST || '0.0.0.0',
     poll: () => process.env.DEVSERVER_POLL || false,
-    port: () => process.env.DEVSERVER_PORT || 8080,
+    port: () => process.env.DEVSERVER_PORT || 3000,
     https: () => process.env.DEVSERVER_HTTPS || false
   },
   manifestConfig: {
