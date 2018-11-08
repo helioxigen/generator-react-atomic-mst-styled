@@ -102,39 +102,42 @@ const configureManifest = type => ({
   }
 });
 
-const { legacyConfig, modernConfig } = genConfig(type => ({
-  name: pkg.name,
-  entry: configureEntries(),
-  output: {
-    path: path.resolve(__dirname, settings.paths.dist.base),
-    publicPath: settings.urls.publicPath
-  },
-  module: {
-    rules: [configureFontLoader()]
-  },
-  module: {
-    rules: [
-      configureBabelLoader(Object.values(pkg.browserslist[`${type}Browsers`]))
+const { legacyConfig, modernConfig } = genConfig(
+  type => ({
+    name: pkg.name,
+    entry: configureEntries(),
+    output: {
+      path: path.resolve(__dirname, settings.paths.dist.base),
+      publicPath: settings.urls.publicPath
+    },
+    module: {
+      rules: [configureFontLoader()]
+    },
+    module: {
+      rules: [
+        configureBabelLoader(Object.values(pkg.browserslist[`${type}Browsers`]))
+      ]
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        inject: false,
+        template: require("html-webpack-template"),
+        appMountId: "app",
+        baseHref: settings.urls.baseHref,
+        devServer: settings.devServerConfig.public(),
+        inlineManifestWebpackName: getManifestName(type)
+      }),
+      new CopyWebpackPlugin(settings.copyWebpackConfig),
+      new ManifestPlugin(configureManifest(type)),
+      new WebpackNotifierPlugin({
+        title: "Webpack",
+        excludeWarnings: true,
+        alwaysNotify: true
+      })
     ]
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-      inject: false,
-      template: require("html-webpack-template"),
-      appMountId: "app",
-      baseHref: settings.urls.baseHref,
-      devServer: settings.devServerConfig.public(),
-      inlineManifestWebpackName: getManifestName(type),
-    })
-    new CopyWebpackPlugin(settings.copyWebpackConfig),
-    new ManifestPlugin(configureManifest(type)),
-    new WebpackNotifierPlugin({
-      title: "Webpack",
-      excludeWarnings: true,
-      alwaysNotify: true
-    })
-  ]
-}), ["modern", "legacy"]);
+  }),
+  ["modern", "legacy"]
+);
 
 // Common module exports
 // noinspection WebpackConfigHighlighting
