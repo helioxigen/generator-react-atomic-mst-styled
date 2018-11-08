@@ -6,24 +6,23 @@ const pkg = require("./package.json")
 
 // Webpack settings exports
 // noinspection WebpackConfigHighlighting
+
 module.exports = {
+    configTypes: ["legacy", "modern"],
     name: pkg.name,
     paths: {
         src: {
             base: "./src/",
-            js: "./src/js/",
+            js: "./src/js",
         },
         dist: {
-            base: "./build/",
+            base: "./build",
             clean: ["./img", "./js"],
         },
     },
     urls: {
         baseHref: "",
         publicPath: "/dist/",
-    },
-    entries: {
-        app: "app.js",
     },
     copyWebpackConfig: [
         {
@@ -39,7 +38,7 @@ module.exports = {
         https: () => process.env.DEVSERVER_HTTPS || false,
     },
     manifestConfig: {
-        basePath: "",
+        basePath: "./build",
     },
     saveRemoteFileConfig: [
         // {

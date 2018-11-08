@@ -1,9 +1,4 @@
-// Webpack.dev.js - developmental builds
-const LEGACY_CONFIG = "legacy"
-const MODERN_CONFIG = "modern"
-
 // Node modules
-const merge = require("webpack-merge")
 const path = require("path")
 const webpack = require("webpack")
 
@@ -16,66 +11,22 @@ const dashboard = new Dashboard()
 // Config files
 const common = require("./webpack.common.js")
 const settings = require("./webpack.settings.js")
-
-// Configure the webpack-dev-server
-const configureDevServer = () => ({
-    public: settings.devServerConfig.public(),
-    contentBase: path.resolve(__dirname, settings.paths.dist.base),
-    host: settings.devServerConfig.host(),
-    port: settings.devServerConfig.port(),
-    https: Boolean(parseInt(settings.devServerConfig.https(), 10)),
-    quiet: true,
-    hot: true,
-    hotOnly: true,
-    overlay: true,
-    stats: "errors-only",
-    watchOptions: {
-        poll: Boolean(parseInt(settings.devServerConfig.poll(), 10)),
-    },
-    headers: {
-        "Access-Control-Allow-Origin": "*",
-    },
-})
-
-// Configure Image loader
-const configureImageLoader = () => ({
-    test: /\.(png|jpe?g|gif|svg|webp)$/i,
-    use: [
-        {
-            loader: "file-loader",
-            options: {
-                name: "img/[name].[hash].[ext]",
-            },
-        },
-    ],
-})
+const { devServer, imageLoader } = require("./configs")
+const { conditionalEntries } = require("./utils")
 
 // Development module exports
-module.exports = [
-    merge(common.legacyConfig, {
-        output: {
-            filename: path.join("./js", "[name]-legacy.[hash].js"),
-            publicPath: `${settings.devServerConfig.public()}/`,
-        },
-        mode: "development",
-        devtool: "inline-source-map",
-        devServer: configureDevServer(LEGACY_CONFIG),
-        module: {
-            rules: [configureImageLoader(LEGACY_CONFIG)],
-        },
-        plugins: [new webpack.HotModuleReplacementPlugin()],
-    }),
-    merge(common.modernConfig, {
-        output: {
-            filename: path.join("./js", "[name].[hash].js"),
-            publicPath: `${settings.devServerConfig.public()}/`,
-        },
-        mode: "development",
-        devtool: "inline-source-map",
-        devServer: configureDevServer(MODERN_CONFIG),
-        module: {
-            rules: [configureImageLoader(MODERN_CONFIG)],
-        },
-        plugins: [new webpack.HotModuleReplacementPlugin(), new DashboardPlugin(dashboard.setData)],
-    }),
-]
+module.exports = common.extend(type => ({
+    mode: "development",
+    devServer,
+    output: {
+        filename: path.join("./js", `[name]${type === "modern" ? "" : `.${type}`}.[hash].js`),
+        publicPath: `${settings.devServerConfig.public()}/`,
+    },
+    module: {
+        rules: [imageLoader(type)],
+    },
+    plugins: conditionalEntries(new webpack.HotModuleReplacementPlugin(), [
+        "modern",
+        new DashboardPlugin(dashboard.setData),
+    ]),
+}))

@@ -37,11 +37,12 @@ module.exports = class extends Generator {
                 name: "username",
                 message: "Git username",
                 default: this.user.git.name,
+                store: true,
             },
         ])
     }
 
-    configuring() {
+    async configuring() {
         const repoURL = new URL(this.answers.repo)
         repoURL.username = this.answers.username
 
@@ -51,14 +52,15 @@ module.exports = class extends Generator {
             this.destinationRoot(this.destinationPath(this.answers.name))
         }
 
-        this.spawnCommand("git", ["clone", repoURL, this.destinationPath(".")])
+        this.spawnCommandSync("git", ["clone", repoURL, this.destinationPath(".")])
+        this.spawnCommandSync("git", ["pack-refs"])
     }
 
     writing() {
         this._createPackageJson()
 
         this.fs.copy(this.templatePath("src"), this.destinationPath("src"))
-        this.fs.copy(this.templatePath("webpack"), this.destinationPath("."))
+        this.fs.copy(this.templatePath("webpack"), this.destinationPath("webpack"))
         this.fs.copy(this.templatePath("configs"), this.destinationPath("."), {
             globOptions: { dot: true },
         })
@@ -80,7 +82,7 @@ module.exports = class extends Generator {
         const pkgJson = {
             name,
             version: "1.0.0",
-            main: "./src/index.js",
+            main: "./src/index.jsx",
             scripts: {
                 dev: "webpack-dev-server --config webpack.dev.js",
                 build: "webpack --config webpack.prod.js --progress --hide-modules",
@@ -91,10 +93,10 @@ module.exports = class extends Generator {
             },
             author: "rolling",
             license: "UNLICENSED",
-            browserlist: {
+            browserslist: {
                 production: ["> 1%", "last 2 versions", "Firefox ESR"],
-                legacyBrowsers: ["> 1%", "last 2 versions", "Firefox ESR"],
-                modernBrowsers: [
+                legacy: ["> 1%", "last 2 versions", "Firefox ESR"],
+                modern: [
                     "last 2 Chrome versions",
                     "not Chrome < 60",
                     "last 2 Safari versions",

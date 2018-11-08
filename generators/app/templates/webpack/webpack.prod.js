@@ -3,41 +3,21 @@ const LEGACY_CONFIG = "legacy"
 const MODERN_CONFIG = "modern"
 
 // Node modules
-const git = require("git-rev-sync")
-const merge = require("webpack-merge")
-const moment = require("moment")
-const path = require("path")
 const webpack = require("webpack")
+const path = require("path")
 
 // Webpack plugins
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer")
 const CleanWebpackPlugin = require("clean-webpack-plugin")
 const ImageminWebpWebpackPlugin = require("imagemin-webp-webpack-plugin")
 const SaveRemoteFilePlugin = require("save-remote-file-webpack-plugin")
-const TerserPlugin = require("terser-webpack-plugin")
 const WorkboxPlugin = require("workbox-webpack-plugin")
 
 // Config files
 const common = require("./webpack.common.js")
-const pkg = require("./package.json")
 const settings = require("./webpack.settings.js")
-
-// Configure file banner
-const configureBanner = () => ({
-    banner: [
-        "/*!",
-        ` * @project        ${settings.name}`,
-        " * @name           [filebase]",
-        ` * @author         ${pkg.author.name}`,
-        ` * @build          ${moment().format("llll")} ET`,
-        ` * @release        ${git.long()} [${git.branch()}]`,
-        ` * @copyright      Copyright (c) ${moment().format("YYYY")} ${settings.copyright}`,
-        " *",
-        " */",
-        "",
-    ].join("\n"),
-    raw: true,
-})
+const { configureOptimization, imageLoader, configureBanner } = require("./configs")
+const { conditionalEntries } = require("./utils")
 
 // Configure Bundle Analyzer
 const configureBundleAnalyzer = buildType => ({
@@ -52,70 +32,6 @@ const configureCleanWebpack = () => ({
     dry: false,
 })
 
-// Configure Image loader
-const configureImageLoader = buildType => {
-    const config = {
-        test: /\.(png|jpe?g|gif|svg|webp)$/i,
-        use: [
-            {
-                loader: "file-loader",
-                options: {
-                    name: "img/[name].[hash].[ext]",
-                },
-            },
-        ],
-    }
-
-    if (buildType === MODERN_CONFIG) {
-        config.use.push({
-            loader: "img-loader",
-            options: {
-                plugins: [
-                    require("imagemin-gifsicle")({
-                        interlaced: true,
-                    }),
-                    require("imagemin-mozjpeg")({
-                        progressive: true,
-                        arithmetic: false,
-                    }),
-                    require("imagemin-optipng")({
-                        optimizationLevel: 5,
-                    }),
-                    require("imagemin-svgo")({
-                        plugins: [{ convertPathData: false }],
-                    }),
-                ],
-            },
-        })
-    }
-
-    return config
-}
-
-// Configure optimization
-const configureOptimization = buildType => {
-    const config = {
-        minimizer: [
-            new TerserPlugin({
-                cache: true,
-                parallel: true,
-                sourceMap: true,
-            }),
-        ],
-    }
-
-    if (buildType === LEGACY_CONFIG) {
-        config.splitChunks = {
-            cacheGroups: {
-                default: false,
-                common: false,
-            },
-        }
-    }
-
-    return config
-}
-
 // Configure Workbox service worker
 const configureWorkbox = () => {
     const config = settings.workboxConfig
@@ -124,40 +40,22 @@ const configureWorkbox = () => {
 }
 
 // Production module exports
-module.exports = [
-    merge(common.legacyConfig, {
-        output: {
-            filename: path.join("./js", "[name]-legacy.[chunkhash].js"),
-        },
-        mode: "production",
-        devtool: "source-map",
-        optimization: configureOptimization(LEGACY_CONFIG),
-        module: {
-            rules: [configureImageLoader(LEGACY_CONFIG)],
-        },
-        plugins: [
-            new CleanWebpackPlugin(settings.paths.dist.clean, configureCleanWebpack()),
-            new webpack.BannerPlugin(configureBanner()),
-            new SaveRemoteFilePlugin(settings.saveRemoteFileConfig),
-            new BundleAnalyzerPlugin(configureBundleAnalyzer(LEGACY_CONFIG)),
-        ],
-    }),
-    merge(common.modernConfig, {
-        output: {
-            filename: path.join("./js", "[name].[chunkhash].js"),
-        },
-        mode: "production",
-        devtool: "source-map",
-        optimization: configureOptimization(MODERN_CONFIG),
-        module: {
-            rules: [configureImageLoader(MODERN_CONFIG)],
-        },
-        plugins: [
-            new webpack.optimize.ModuleConcatenationPlugin(),
-            new webpack.BannerPlugin(configureBanner()),
-            new ImageminWebpWebpackPlugin(),
-            new WorkboxPlugin.GenerateSW(configureWorkbox()),
-            new BundleAnalyzerPlugin(configureBundleAnalyzer(MODERN_CONFIG)),
-        ],
-    }),
-]
+module.exports = common.extend(type => ({
+    output: {
+        filename: path.join("./js", `[name]${type === "modern" ? "" : `.${type}`}.[chunkhash].js`),
+    },
+    mode: "production",
+    devtool: "source-map",
+    optimization: configureOptimization(type),
+    module: {
+        rules: [imageLoader(type, true)],
+    },
+    plugins: conditionalEntries(
+        new CleanWebpackPlugin(settings.paths.dist.clean, configureCleanWebpack()),
+        new webpack.BannerPlugin(configureBanner()),
+        [MODERN_CONFIG, new ImageminWebpWebpackPlugin()],
+        [MODERN_CONFIG, new WorkboxPlugin.GenerateSW(configureWorkbox())],
+        [LEGACY_CONFIG, new SaveRemoteFilePlugin(settings.saveRemoteFileConfig)],
+        new BundleAnalyzerPlugin(configureBundleAnalyzer(type)),
+    )(type),
+}))
