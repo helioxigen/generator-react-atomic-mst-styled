@@ -15,7 +15,11 @@ const { settings, packageJson: pkg } = require("./index")
 // const configureEntries = () =>
 //     _.mapValues(settings.entries, value => path.resolve(__dirname, settings.paths.src.js + value))
 
-module.exports = createRootConfig(type => ({
+module.exports = createRootConfig({
+    babelLoader,
+    htmlTemplate: configureHtmlTemplate,
+    manifest: configureManifest,
+})(vars => ({
     name: pkg.name,
     entry: "./src/index.jsx",
     resolve: {
@@ -26,12 +30,12 @@ module.exports = createRootConfig(type => ({
         publicPath: settings.urls.publicPath,
     },
     module: {
-        rules: [fontLoader, babelLoader(type)],
+        rules: [fontLoader, vars.babelLoader],
     },
     plugins: [
-        new HtmlWebpackPlugin(configureHtmlTemplate(type)),
+        new HtmlWebpackPlugin(vars.htmlTemplate),
         new CopyWebpackPlugin(settings.copyWebpackConfig),
-        new ManifestPlugin(configureManifest(type)),
+        new ManifestPlugin(vars.manifest),
         new WebpackNotifierPlugin({
             title: "Webpack",
             excludeWarnings: true,

@@ -18,17 +18,21 @@ const { conditionalEntries, tplStrType } = require("./utils")
 const { MODERN_CONFIG } = require("./index").configTypes
 
 // Development module exports
-module.exports = common.extend(type => ({
+module.exports = common.extend({
+    fileTemplate: tplStrType("[name][type].[hash].js"),
+    imageLoader,
+    filterPlugins: (...entries) => conditionalEntries(...entries),
+})(vars => ({
     mode: "development",
     devServer,
     output: {
-        filename: path.join("./js", tplStrType("[name][type].[hash].js", type)),
+        filename: path.join("./js", vars.fileTemplate),
         publicPath: `${settings.devServerConfig.public()}/`,
     },
     module: {
-        rules: [imageLoader(type)],
+        rules: [vars.imageLoader],
     },
-    plugins: conditionalEntries(new webpack.HotModuleReplacementPlugin(), [
+    plugins: vars.filterPlugins(new webpack.HotModuleReplacementPlugin(), [
         MODERN_CONFIG,
         new DashboardPlugin(dashboard.setData),
     ]),

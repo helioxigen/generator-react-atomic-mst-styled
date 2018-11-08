@@ -15,47 +15,42 @@ const WorkboxPlugin = require("workbox-webpack-plugin")
 const common = require("./webpack.common")
 const settings = require("./webpack.settings")
 const { configureOptimization, imageLoader, configureBanner } = require("./configs")
-const { conditionalEntries } = require("./utils")
-
-// Configure Bundle Analyzer
-const configureBundleAnalyzer = buildType => ({
-    analyzerMode: "static",
-    reportFilename: `report-${buildType}.html`,
-})
-
-// Configure Clean webpack
-const configureCleanWebpack = () => ({
-    root: path.resolve(__dirname, settings.paths.dist.base),
-    verbose: true,
-    dry: false,
-})
-
-// Configure Workbox service worker
-const configureWorkbox = () => {
-    const config = settings.workboxConfig
-
-    return config
-}
+const {
+    conditionalEntries,
+    configureCleanWebpack,
+    configureWorkbox,
+    configureBundleAnalyzer,
+    tplStrType,
+} = require("./utils")
 
 const { LEGACY_CONFIG, MODERN_CONFIG } = require("./index").configTypes
 
 // Production module exports
-module.exports = common.extend(type => ({
+module.exports = common.extend({
+    fileTemplate: tplStrType("[name][type].[chunkhash].js"),
+    imageLoader: t => imageLoader(t, true),
+    optimization: configureOptimization,
+    bundleAnalyzer: configureBundleAnalyzer,
+    workbox: configureWorkbox,
+    banner: configureBanner,
+    cleanWebpack: configureCleanWebpack,
+    filterPlugins: (...entries) => conditionalEntries(...entries),
+})(vars => ({
     output: {
-        filename: path.join("./js", `[name]${type === "modern" ? "" : `.${type}`}.[chunkhash].js`),
+        filename: path.join("./js", vars.fileTemplate),
     },
     mode: "production",
     devtool: "source-map",
-    optimization: configureOptimization(type),
+    optimization: vars.optimization,
     module: {
-        rules: [imageLoader(type, true)],
+        rules: [vars.imageLoader],
     },
-    plugins: conditionalEntries(
-        new CleanWebpackPlugin(settings.paths.dist.clean, configureCleanWebpack()),
-        new webpack.BannerPlugin(configureBanner()),
+    plugins: vars.filterPlugins(
+        [LEGACY_CONFIG, new CleanWebpackPlugin(settings.paths.dist.clean, vars.cleanWebpack)],
+        new webpack.BannerPlugin(vars.banner),
         [MODERN_CONFIG, new ImageminWebpWebpackPlugin()],
-        [MODERN_CONFIG, new WorkboxPlugin.GenerateSW(configureWorkbox())],
+        [MODERN_CONFIG, new WorkboxPlugin.GenerateSW(vars.workbox)],
         [LEGACY_CONFIG, new SaveRemoteFilePlugin(settings.saveRemoteFileConfig)],
-        new BundleAnalyzerPlugin(configureBundleAnalyzer(type)),
-    )(type),
+        new BundleAnalyzerPlugin(vars.bundleAnalyzer),
+    ),
 }))

@@ -13,7 +13,6 @@ const configTypes = {
 }
 
 module.exports = {
-    _packageJson: pkg,
     configTypes,
     name: pkg.name,
     paths: {
